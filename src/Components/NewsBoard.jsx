@@ -19,15 +19,14 @@ const NewsBoard = ({category}) => {
     useEffect(() => {
     const controller = new AbortController();
 
-    const apiKey = import.meta.env.VITE_API_KEY;
-    const categoryParam = category ? `&category=${category}` : "";
-    const url = `https://newsapi.org/v2/top-headlines?country=us${categoryParam}&apiKey=${apiKey}`;
+    const categoryParam = category ? `category=${category}` : "";
+    const url = `/news?categoryQuery`;
 
     fetch(url, {
         signal: controller.signal,
         headers: {
-        'Accept': 'application/json',
-        'User-Agent': 'BrieflyNewsApp/1.0'
+            'Accept': 'application/json',
+            'User-Agent': 'BrieflyNewsApp/1.0'
         }
     })
         .then(response => {

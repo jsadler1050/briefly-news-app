@@ -1,12 +1,11 @@
 // server.js
 const express = require('express');
-const fetch = require('node-fetch');
-require('dotenv').config(); // Load variables from .env
+const fetch = require('node-fetch'); // ✅ Import fetch from node-fetch
+require('dotenv').config();
 
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-// Proxy endpoint for news
 app.get('/news', async (req, res) => {
   const category = req.query.category || 'general';
   const apiKey = process.env.NEWS_API_KEY;
@@ -16,18 +15,15 @@ app.get('/news', async (req, res) => {
   try {
     const response = await fetch(url, {
       headers: {
-        'User-Agent': 'BrieflyNewsApp'
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
       }
     });
-
-    if (!response.ok) {
-      return res.status(response.status).json({ error: `NewsAPI error: ${response.status}` });
-    }
 
     const data = await response.json();
     res.json(data);
   } catch (err) {
-    res.status(500).json({ error: 'Server error', details: err.message });
+    console.error("Proxy fetch error:", err.message);
+    res.status(500).json({ error: "Server error", details: err.message });
   }
 });
 
