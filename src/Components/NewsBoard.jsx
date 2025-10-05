@@ -7,7 +7,6 @@ const NewsBoard = ({category}) => {
     const [articles,setArticles] = useState([]);
 
 
-        useEffect(()=>{
                 /*
                      Fetch top headlines from NewsAPI
                      - `import.meta.env.VITE_API_KEY` is used for the API key injected by Vite.
@@ -16,16 +15,38 @@ const NewsBoard = ({category}) => {
                      - After parsing JSON, we default to an empty array to keep `articles` as an array
                          (this prevents runtime errors when rendering with `.map`).
                 */
-                const apiKey = import.meta.env.VITE_API_KEY; // securely imports API key from News API
-                const categoryParam = category ? `&category=${category}` : "";
-                const url = `https://newsapi.org/v2/top-headlines?country=us${categoryParam}&apiKey=${apiKey}`;
 
-                fetch(url)
-                    .then(response => response.json())
-                    // Ensure we always store an array to avoid mapping errors later
-                    .then(data => setArticles(data.articles || []));
-        },[category])
-  
+    useEffect(() => {
+    const controller = new AbortController();
+
+    const apiKey = import.meta.env.VITE_API_KEY;
+    const categoryParam = category ? `&category=${category}` : "";
+    const url = `https://newsapi.org/v2/top-headlines?country=us${categoryParam}&apiKey=${apiKey}`;
+
+    fetch(url, {
+        signal: controller.signal,
+        headers: {
+        'Accept': 'application/json',
+        'User-Agent': 'BrieflyNewsApp/1.0'
+        }
+    })
+        .then(response => {
+        console.log("Status:", response.status);
+        return response.json();
+        })
+        .then(data => {
+        console.log("API response:", data);
+        setArticles(data.articles || []);
+        })
+        .catch(err => {
+        if (err.name !== 'AbortError') {
+            console.error("API error:", err);
+        }
+        });
+
+    return () => controller.abort();
+    }, [category]);
+    
     return (
     <div>    
         <h2 className="text-center">Latest <span className="badge bg-danger">News</span></h2>
