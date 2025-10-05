@@ -1,0 +1,56 @@
+import { useEffect } from "react"; //React hooks
+import { useState } from "react";
+import NewsItem from "./NewsItem";
+
+const NewsBoard = ({category}) => {
+    
+    const [articles,setArticles] = useState([]);
+
+
+        useEffect(()=>{
+                /*
+                     Fetch top headlines from NewsAPI
+                     - `import.meta.env.VITE_API_KEY` is used for the API key injected by Vite.
+                     - We only append the `category` query parameter when a category is provided.
+                     - Always include `&apiKey=` so the request is authenticated.
+                     - After parsing JSON, we default to an empty array to keep `articles` as an array
+                         (this prevents runtime errors when rendering with `.map`).
+                */
+                const apiKey = import.meta.env.VITE_API_KEY; // securely imports API key from News API
+                const categoryParam = category ? `&category=${category}` : "";
+                const url = `https://newsapi.org/v2/top-headlines?country=us${categoryParam}&apiKey=${apiKey}`;
+
+                fetch(url)
+                    .then(response => response.json())
+                    // Ensure we always store an array to avoid mapping errors later
+                    .then(data => setArticles(data.articles || []));
+        },[category])
+  
+    return (
+    <div>    
+        <h2 className="text-center">Latest <span className="badge bg-danger">News</span></h2>
+        {/*
+          Render articles safely:
+          - Check `Array.isArray` so we don't call `.map` on null/undefined.
+          - Use a stable key when possible (`news.url`) to help React diffing.
+          - Spread props or pass explicitly depending on whether `NewsItem` expects a specific shape.
+        */}
+        {Array.isArray(articles) && articles.map((news, index) => {
+            // stagger delay: 80ms between items, capped to avoid excessive delays
+            const delayMs = Math.min(80 * index, 600);
+            return (
+                <NewsItem
+                    key={news.url || index}
+                    title={news.title}
+                    description={news.description}
+                    src={news.urlToImage}
+                    url={news.url}
+                    style={{ animationDelay: `${delayMs}ms` }}
+                />
+            )
+        })}
+    </div>
+  )
+}
+
+export default NewsBoard; // Makes component available for use in other parts of the app

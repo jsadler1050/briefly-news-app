@@ -1,0 +1,22 @@
+.news-card {
+        /* start invisible and slightly offset */
+        opacity: 0;
+        transform: translateY(16px);
+        /*
+            Use a named animation that will be triggered when the element is rendered.
+            The animation-fill-mode `forwards` ensures the final state is retained.
+            `animation-delay` can be provided inline per-item to stagger them.
+        */
+        animation: slideInUp 420ms cubic-bezier(.22,.9,.18,1) forwards;
+}
+
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(16px) translateZ(0);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) translateZ(0);
+    }
+}
